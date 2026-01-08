@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🕵️ Cyber Detective Challenge - Unit 1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .score-item {
+            text-align: center;
+        }
+        
+        .score-item .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .score-item .value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .scenario {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+        
+        .scenario h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .scenario p {
+            line-height: 1.6;
+            font-size: 1.1em;
+            color: #333;
+        }
+        
+        .choices {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .choice-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .choice-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .choice-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .choice-btn.correct {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            animation: pulse 0.5s;
+        }
+        
+        .choice-btn.incorrect {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            animation: shake 0.5s;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            animation: slideIn 0.3s;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feedback.correct {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+            display: block;
+        }
+        
+        .feedback.incorrect {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+            display: block;
+        }
+        
+        .next-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            display: none;
+        }
+        
+        .next-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(245, 87, 108, 0.3);
+        }
+        
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.5s;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .badge.phishing { background: #ff6b6b; color: white; }
+        .badge.privacy { background: #4ecdc4; color: white; }
+        .badge.ethics { background: #ffd93d; color: #333; }
+        .badge.security { background: #6c5ce7; color: white; }
+        
+        .final-screen {
+            text-align: center;
+            display: none;
+        }
+        
+        .final-screen h2 {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .trophy {
+            font-size: 5em;
+            margin: 20px 0;
+        }
+        
+        .final-score {
+            font-size: 3em;
+            font-weight: bold;
+            color: #f5576c;
+            margin: 20px 0;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🕵️ Cyber Detective Challenge</h1>
+            <p>Unit 1: Cybersecurity and You</p>
+            <div class="score-board">
+                <div class="score-item">
+                    <div class="label">Score</div>
+                    <div class="value" id="score">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="label">Streak</div>
+                    <div class="value" id="streak">0🔥</div>
+                </div>
+                <div class="score-item">
+                    <div class="label">Level</div>
+                    <div class="value" id="level">1</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress" style="width: 0%"></div>
+            </div>
+            
+            <div id="game-area">
+                <!-- Scenarios will be injected here -->
+            </div>
+            
+            <div class="final-screen" id="final-screen">
+                <div class="trophy">🏆</div>
+                <h2>Congratulations, Cyber Detective!</h2>
+                <div class="final-score" id="final-score"></div>
+                <p style="font-size: 1.2em; margin: 20px 0;">You've completed Unit 1!</p>
+                <button class="restart-btn" onclick="location.reload()">Play Again</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const scenarios = [
+            {
+                id: 1,
+                badge: "phishing",
+                title: "📧 The Suspicious Email",
+                story: "You just received an email that appears to be from your bank. It says there's unusual activity on your account and asks you to click a link to verify your credentials. However, you didn't request any verification. What type of attack is this?",
+                choices: [
+                    { text: "DDoS Attack", correct: false, feedback: "Not quite! DDoS attacks overload servers with traffic, not trick users with fake emails." },
+                    { text: "Phishing Attack", correct: true, feedback: "🎯 Correct! Phishing uses fake emails to steal personal information. Never click suspicious links!" },
+                    { text: "Ransomware", correct: false, feedback: "Nope! Ransomware locks your files and demands payment." },
+                    { text: "SQL Injection", correct: false, feedback: "Not this time! SQL injection attacks target databases, not email users." }
+                ]
+            },
+            {
+                id: 2,
+                badge: "privacy",
+                title: "🌐 School Internet Mystery",
+                story: "You're at school trying to play your favorite online game during lunch, but you get a message saying 'Access Blocked'. The IT department has configured something to filter which websites students can visit. What's blocking the gaming site?",
+                choices: [
+                    { text: "Cache Memory", correct: false, feedback: "Not quite! Cache stores temporary data to speed up browsing." },
+                    { text: "Antivirus Software", correct: false, feedback: "Antivirus protects against malware, but doesn't typically block websites." },
+                    { text: "Proxy Settings", correct: true, feedback: "💯 Exactly! Schools use proxy settings to filter and control which sites can be accessed." },
+                    { text: "Private Browsing Mode", correct: false, feedback: "Private browsing protects your history, but doesn't block websites." }
+                ]
+            },
+            {
+                id: 3,
+                badge: "security",
+                title: "🏢 The Data Breach",
+                story: "A major company just announced that hackers broke into their system and stole millions of customer passwords, credit card numbers, and addresses. Which principle of the CIA Triad has been compromised?",
+                choices: [
+                    { text: "Availability", correct: false, feedback: "Not this one! Availability is about systems being accessible when needed." },
+                    { text: "Confidentiality", correct: true, feedback: "🔒 Correct! Confidentiality ensures sensitive data stays private. When data is stolen, confidentiality is broken!" },
+                    { text: "Accessibility", correct: false, feedback: "Accessibility isn't part of the CIA Triad!" },
+                    { text: "Integrity", correct: false, feedback: "Integrity is about data accuracy. Nothing was changed here, just stolen." }
+                ]
+            },
+            {
+                id: 4,
+                badge: "security",
+                title: "💰 The Altered Records",
+                story: "A company discovers that someone secretly changed their financial records to hide missing money. The data wasn't stolen or deleted, just modified. Which CIA Triad principle is compromised?",
+                choices: [
+                    { text: "Availability", correct: false, feedback: "The data is still available, just wrong!" },
+                    { text: "Confidentiality", correct: false, feedback: "The data wasn't exposed to unauthorized people." },
+                    { text: "Integrity", correct: true, feedback: "✅ Perfect! Integrity means data is accurate and unaltered. Changing records breaks integrity!" },
+                    { text: "Identification", correct: false, feedback: "Identification isn't part of the CIA Triad." }
+                ]
+            },
+            {
+                id: 5,
+                badge: "security",
+                title: "🍕 Website Down!",
+                story: "Katlyn is super hungry and wants to order food from her favorite online delivery service. But the website won't load because it's down for scheduled maintenance. Which part of the CIA Triad is affected?",
+                choices: [
+                    { text: "Confidentiality", correct: false, feedback: "Her data is still private, just can't access the service!" },
+                    { text: "Integrity", correct: false, feedback: "The data isn't being changed." },
+                    { text: "Availability", correct: true, feedback: "🎯 Yes! Availability means the system is accessible when you need it. Down = not available!" },
+                    { text: "Communicability", correct: false, feedback: "That's not part of the CIA Triad!" }
+                ]
+            },
+            {
+                id: 6,
+                badge: "security",
+                title: "🔐 Password Protection",
+                story: "You're creating passwords for your online accounts. Which practice will NOT make your passwords more secure?",
+                choices: [
+                    { text: "Use unique passwords for each account", correct: false, feedback: "This IS good practice! Different passwords prevent one breach from affecting all accounts." },
+                    { text: "Regularly update passwords", correct: false, feedback: "This IS good practice! Changing passwords periodically adds security." },
+                    { text: "Write passwords in a secure location", correct: true, feedback: "⚠️ Correct! Writing passwords down (even securely) is risky. Use a password manager instead!" },
+                    { text: "Avoid birthdays or pet names", correct: false, feedback: "This IS good practice! Personal info is easy to guess." }
+                ]
+            },
+            {
+                id: 7,
+                badge: "ethics",
+                title: "📱 Social Media Drama",
+                story: "Someone from your class creates a fake social media account and starts posting embarrassing photos and spreading rumors about another student. What is this an example of?",
+                choices: [
+                    { text: "Black Hat Hacking", correct: false, feedback: "Black hat hacking involves breaking into computer systems illegally." },
+                    { text: "Penetration Testing", correct: false, feedback: "Penetration testing is LEGAL security testing done by professionals." },
+                    { text: "Cyberbullying", correct: true, feedback: "💔 Correct. Cyberbullying uses technology to harass or harm others. It's serious and illegal!" },
+                    { text: "Upstanding Behavior", correct: false, feedback: "Definitely not! This is harmful and wrong." }
+                ]
+            },
+            {
+                id: 8,
+                badge: "ethics",
+                title: "🛡️ The Security Professional",
+                story: "A company hires a professional to try to break into their network and find security weaknesses before real hackers do. The pro finds vulnerabilities and helps fix them. What is this called?",
+                choices: [
+                    { text: "Data Breach", correct: false, feedback: "A data breach is when security is ACTUALLY broken!" },
+                    { text: "Ethical Hacking / Penetration Testing", correct: true, feedback: "👨‍💻 Exactly! Ethical hackers are the good guys who find vulnerabilities to fix them!" },
+                    { text: "Malicious Hacking", correct: false, feedback: "Malicious hacking is illegal and harmful." },
+                    { text: "Unauthorized Access", correct: false, feedback: "This IS authorized - the company hired them!" }
+                ]
+            },
+            {
+                id: 9,
+                badge: "security",
+                title: "🔑 Access Control",
+                story: "Your school IT department wants to make sure students can only access student folders, teachers can access teacher resources, and admins can access everything. Which security feature controls who can do what?",
+                choices: [
+                    { text: "Password Policies", correct: false, feedback: "Password policies set rules for creating passwords." },
+                    { text: "Automatic Updates", correct: false, feedback: "Updates patch security holes but don't control permissions." },
+                    { text: "Account Permissions", correct: true, feedback: "🎯 Yes! Permissions control what each user is authorized to access and do!" },
+                    { text: "Multi-factor Authentication", correct: false, feedback: "MFA verifies identity but doesn't control what you can access." }
+                ]
+            },
+            {
+                id: 10,
+                badge: "privacy",
+                title: "🕵️ Library Computer",
+                story: "You're using a public computer at the library to search for birthday gift ideas for your friend. You don't want the next person to see what you searched for. What should you use?",
+                choices: [
+                    { text: "Reset all passwords", correct: false, feedback: "That won't help hide your search history!" },
+                    { text: "Update antivirus", correct: false, feedback: "Antivirus protects against malware, not search history." },
+                    { text: "Multi-factor authentication", correct: false, feedback: "MFA secures login, but doesn't hide history." },
+                    { text: "Private Browsing Mode", correct: true, feedback: "🔒 Perfect! Private/Incognito mode doesn't save history, cookies, or site data!" }
+                ]
+            },
+            {
+                id: 11,
+                badge: "privacy",
+                title: "🏠 Smart Home Tech",
+                story: "Your house has a smart thermostat that adjusts temperature via your phone, smart speakers that play music on command, and a smart fridge that tracks groceries. What technology connects all these devices to the internet?",
+                choices: [
+                    { text: "Artificial Intelligence", correct: false, feedback: "AI helps devices make decisions, but doesn't connect them." },
+                    { text: "Cloud Computing", correct: false, feedback: "Cloud stores data online, but isn't what connects devices." },
+                    { text: "Internet of Things (IoT)", correct: true, feedback: "🌐 Exactly! IoT connects everyday objects to the internet so they can communicate!" },
+                    { text: "Virtual Reality", correct: false, feedback: "VR creates immersive experiences, not smart home connections." }
+                ]
+            }
+        ];
+        
+        let currentScenario = 0;
+        let score = 0;
+        let streak = 0;
+        let answered = false;
+        
+        function loadScenario() {
+            if (currentScenario >= scenarios.length) {
+                showFinalScreen();
+                return;
+            }
+            
+            answered = false;
+            const scenario = scenarios[currentScenario];
+            const gameArea = document.getElementById('game-area');
+            
+            // Update progress
+            const progress = ((currentScenario + 1) / scenarios.length) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            document.getElementById('level').textContent = currentScenario + 1;
+            
+            // Build scenario HTML
+            let html = `
+                <div class="scenario">
+                    <span class="badge ${scenario.badge}">${scenario.badge.toUpperCase()}</span>
+                    <h2>${scenario.title}</h2>
+                    <p>${scenario.story}</p>
+                </div>
+                <div class="choices">
+            `;
+            
+            scenario.choices.forEach((choice, index) => {
+                html += `
+                    <button class="choice-btn" onclick="checkAnswer(${index})">
+                        ${choice.text}
+                    </button>
+                `;
+            });
+            
+            html += `
+                </div>
+                <div class="feedback" id="feedback"></div>
+                <button class="next-btn" id="next-btn" onclick="nextScenario()">Next Challenge →</button>
+            `;
+            
+            gameArea.innerHTML = html;
+        }
+        
+        function checkAnswer(choiceIndex) {
+            if (answered) return;
+            answered = true;
+            
+            const scenario = scenarios[currentScenario];
+            const choice = scenario.choices[choiceIndex];
+            const buttons = document.querySelectorAll('.choice-btn');
+            const feedback = document.getElementById('feedback');
+            const nextBtn = document.getElementById('next-btn');
+            
+            buttons[choiceIndex].classList.add(choice.correct ? 'correct' : 'incorrect');
+            feedback.className = 'feedback ' + (choice.correct ? 'correct' : 'incorrect');
+            feedback.innerHTML = `<strong>${choice.correct ? '✅ Correct!' : '❌ Incorrect'}</strong><br>${choice.feedback}`;
+            nextBtn.style.display = 'block';
+            
+            // Disable all buttons
+            buttons.forEach(btn => btn.style.pointerEvents = 'none');
+            
+            // Update score
+            if (choice.correct) {
+                streak++;
+                score += 100 + (streak * 10);
+                document.getElementById('score').textContent = score;
+                document.getElementById('streak').textContent = streak + '🔥';
+            } else {
+                streak = 0;
+                document.getElementById('streak').textContent = '0🔥';
+            }
+        }
+        
+        function nextScenario() {
+            currentScenario++;
+            loadScenario();
+        }
+        
+        function showFinalScreen() {
+            document.getElementById('game-area').style.display = 'none';
+            const finalScreen = document.getElementById('final-screen');
+            finalScreen.style.display = 'block';
+            
+            const percentage = (score / (scenarios.length * 100)) * 100;
+            let message = '';
+            let trophy = '🏆';
+            
+            if (percentage >= 90) {
+                message = 'OUTSTANDING! You\'re a Cyber Security Master!';
+                trophy = '🏆🏆🏆';
+            } else if (percentage >= 70) {
+                message = 'Great Job! You\'re well on your way!';
+                trophy = '🏆🏆';
+            } else if (percentage >= 50) {
+                message = 'Good effort! Review the topics and try again!';
+                trophy = '🏆';
+            } else {
+                message = 'Keep learning! Practice makes perfect!';
+                trophy = '📚';
+            }
+            
+            finalScreen.querySelector('.trophy').textContent = trophy;
+            finalScreen.querySelector('h2').textContent = message;
+            document.getElementById('final-score').textContent = score + ' points';
+        }
+        
+        // Start the game
+        loadScenario();
+    </script>
+</body>
+</html>
